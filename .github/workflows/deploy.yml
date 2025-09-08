@@ -1,0 +1,98 @@
+name: Deploy to multiple servers
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy-server1:
+    runs-on: [self-hosted]  # uses runner labeled 'self-hosted1'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Notify Slack – Start
+        run: |
+          payload="{
+            \"text\": \"🟡 *z-assets-server-1-Starting Deployment...*\\n\
+          *Repo:* $GITHUB_REPOSITORY\\n\
+          *Branch:* ${GITHUB_REF#refs/heads/}\"
+          }"
+          curl -X POST -H 'Content-type: application/json' \
+            --data "$payload" \
+            "${{ secrets.SLACK }}"
+  
+
+      - name: Deploy code
+        run: |
+          cd /var/www/assets-management
+          if [ -d ".git" ]; then
+            git reset --hard
+            git pull origin main
+          else
+            git clone https://github.com/pippintech/assets-management.git .
+          fi
+          npm install
+          export PATH=$PATH:$(npm bin -g)
+          sudo pm2 delete titles-server || true
+          sudo pm2 start app.js --name "titles-server" --update-env
+          sudo pm2 save
+
+      - name: Notify Slack – Complete
+        if: always()
+        run: |
+          payload="{
+            \"text\": \"✅ *z-assets-server-1-Deployment Finished*\\n\
+          Repo: $GITHUB_REPOSITORY\\n\
+          Branch: ${GITHUB_REF#refs/heads/}\\n\
+          Status: ${{ job.status }}\"
+          }"
+          curl -X POST -H 'Content-type: application/json' \
+            --data "$payload" \
+            "${{ secrets.SLACK }}"
+    
+
+  deploy-server2:
+    runs-on: [self-hosted]  # uses runner labeled 'self-hosted2'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Notify Slack – Start
+        run: |
+          payload="{
+            \"text\": \"🟡 *z-assets-server-2-Starting Deployment...*\\n\
+          *Repo:* $GITHUB_REPOSITORY\\n\
+          *Branch:* ${GITHUB_REF#refs/heads/}\"
+          }"
+          curl -X POST -H 'Content-type: application/json' \
+            --data "$payload" \
+            "${{ secrets.SLACK }}"
+  
+
+      - name: Deploy code
+        run: |
+          cd /var/www/assets-management
+          if [ -d ".git" ]; then
+            git reset --hard
+            git pull origin main
+          else
+            git clone https://github.com/pippintech/assets-management.git .
+          fi
+          npm install
+          export PATH=$PATH:$(npm bin -g)
+          sudo pm2 delete titles-server || true
+          sudo pm2 start app.js --name "titles-server" --update-env
+          sudo pm2 save
+      - name: Notify Slack – Complete
+        if: always()
+        run: |
+          payload="{
+            \"text\": \"✅ *z-assets-server-2-Deployment Finished*\\n\
+          Repo: $GITHUB_REPOSITORY\\n\
+          Branch: ${GITHUB_REF#refs/heads/}\\n\
+          Status: ${{ job.status }}\"
+          }"
+          curl -X POST -H 'Content-type: application/json' \
+            --data "$payload" \
+            "${{ secrets.SLACK }}"
