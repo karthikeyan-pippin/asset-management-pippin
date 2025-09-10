@@ -31,7 +31,7 @@ jobs:
         #with:
           #token_format: 'access_token'
           #workload_identity_provider: 'projects/432222429753/locations/global/workloadIdentityPools/github-assets-action/providers/github-assets'
-          #service_account: github-action-assets-deploy@gmapsdevdemoqa.iam.gserviceaccount.com    
+          #service_account: github-action-assets-deploy@gmapsdevdemoqa.iam.gserviceaccount.com   ss 
 
       - id: auth
         uses: google-github-actions/auth@v1
