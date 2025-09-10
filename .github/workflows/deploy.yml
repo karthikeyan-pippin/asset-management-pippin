@@ -37,7 +37,7 @@ jobs:
         uses: google-github-actions/auth@v1
         with:
           token_format: 'access_token'
-          workload_identity_provider: 'https://iam.googleapis.com/projects/432222429753/locations/global/workloadIdentityPools/github-test/providers/github-test-tprovider'
+          workload_identity_provider: 'projects/432222429753/locations/global/workloadIdentityPools/github-test/providers/github-test-tprovider'
           service_account: github-action-assets-deploy@gmapsdevdemoqa.iam.gserviceaccount.com
 
       - name: Test GCP Auth
