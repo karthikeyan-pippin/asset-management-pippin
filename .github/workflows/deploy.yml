@@ -13,7 +13,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Debug GitHub OIDC Claims now
+      - name: Checkout repo
+        uses: actions/checkout@v4   # 👈 ensures workspace is not empty 
+
+      - name: Debug GitHub OIDC Claims
         run: |
           export ID_TOKEN=$(curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
             "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=google-cloud")
