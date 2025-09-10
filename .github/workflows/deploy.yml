@@ -1,98 +1,36 @@
-name: Deploy to multiple servers
+name: Deploy Node App to GCP MIG
 
 on:
   push:
     branches: [ main ]
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
-  deploy-server1:
-    runs-on: [self-hosted]  # uses runner labeled 'self-hosted1'
+  deploy:
+    runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Notify Slack – Start
+      - name: Debug GitHub OIDC Claims
         run: |
-          payload="{
-            \"text\": \"🟡 *z-assets-server-1-Starting Deployment...*\\n\
-          *Repo:* $GITHUB_REPOSITORY\\n\
-          *Branch:* ${GITHUB_REF#refs/heads/}\"
-          }"
-          curl -X POST -H 'Content-type: application/json' \
-            --data "$payload" \
-            "${{ secrets.SLACK }}"
-  
+          export ID_TOKEN=$(curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=google-cloud")
+          echo "Raw OIDC Token:"
+          echo "$ID_TOKEN" | cut -c1-200
+          echo "----"
+          echo "Decoded Claims:"
+          echo "$ID_TOKEN" | jq -R 'split(".") | .[1] | @base64d | fromjson'
 
-      - name: Deploy code
-        run: |
-          cd /var/www/assets-management
-          if [ -d ".git" ]; then
-            git reset --hard
-            git pull origin main
-          else
-            git clone https://github.com/pippintech/assets-management.git .
-          fi
-          npm install
-          export PATH=$PATH:$(npm bin -g)
-          sudo pm2 delete titles-server || true
-          sudo pm2 start app.js --name "titles-server" --update-env
-          sudo pm2 save
+      - id: auth
+        uses: google-github-actions/auth@v1
+        with:
+          token_format: 'access_token'
+          workload_identity_provider: 'projects/432222429753/locations/global/workloadIdentityPools/github-assets-action/providers/github-assets'
+          service_account: github-action-assets-deploy@gmapsdevdemoqa.iam.gserviceaccount.com
 
-      - name: Notify Slack – Complete
-        if: always()
+      - name: Test GCP Auth
         run: |
-          payload="{
-            \"text\": \"✅ *z-assets-server-1-Deployment Finished*\\n\
-          Repo: $GITHUB_REPOSITORY\\n\
-          Branch: ${GITHUB_REF#refs/heads/}\\n\
-          Status: ${{ job.status }}\"
-          }"
-          curl -X POST -H 'Content-type: application/json' \
-            --data "$payload" \
-            "${{ secrets.SLACK }}"
-    
-
-  deploy-server2:
-    runs-on: [self-hosted]  # uses runner labeled 'self-hosted2'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Notify Slack – Start
-        run: |
-          payload="{
-            \"text\": \"🟡 *z-assets-server-2-Starting Deployment...*\\n\
-          *Repo:* $GITHUB_REPOSITORY\\n\
-          *Branch:* ${GITHUB_REF#refs/heads/}\"
-          }"
-          curl -X POST -H 'Content-type: application/json' \
-            --data "$payload" \
-            "${{ secrets.SLACK }}"
-  
-
-      - name: Deploy code
-        run: |
-          cd /var/www/assets-management
-          if [ -d ".git" ]; then
-            git reset --hard
-            git pull origin main
-          else
-            git clone https://github.com/pippintech/assets-management.git .
-          fi
-          npm install
-          export PATH=$PATH:$(npm bin -g)
-          sudo pm2 delete titles-server || true
-          sudo pm2 start app.js --name "titles-server" --update-env
-          sudo pm2 save
-      - name: Notify Slack – Complete
-        if: always()
-        run: |
-          payload="{
-            \"text\": \"✅ *z-assets-server-2-Deployment Finished*\\n\
-          Repo: $GITHUB_REPOSITORY\\n\
-          Branch: ${GITHUB_REF#refs/heads/}\\n\
-          Status: ${{ job.status }}\"
-          }"
-          curl -X POST -H 'Content-type: application/json' \
-            --data "$payload" \
-            "${{ secrets.SLACK }}"
+          gcloud auth list
+          gcloud projects describe gmapsdevdemoqa --format="value(projectId)"
