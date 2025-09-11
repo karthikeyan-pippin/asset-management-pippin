@@ -69,7 +69,7 @@ jobs:
             --project=${{ secrets.PROJECT_ID }} \
             --filter="name ~ ^node-template-" \
             --format="value(name)" \
-            --sort-by=~creationTimestamp | tail -n +3)
+            --sort-by=~creationTimestamp | tail -n +2)
 
           if [ -n "$OLD_TEMPLATES" ]; then
            echo "Deleting old templates: $OLD_TEMPLATES"
