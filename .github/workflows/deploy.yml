@@ -11,10 +11,18 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
+    env:
+      PROJECT_ID: ${{ secrets.PROJECT_ID }}
+      PROJECT_NUMBER: ${{ secrets.PROJECT_NUMBER }}
+      ZONE: ${{ secrets.ZONE }} # e.g. us-central1-a
+      
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4   # 👈 ensures workspace is not empty 
+    
+      - name: List repo files for debug
+        run: |
+          ls -l ./.github/workflows/startup.sh
 
       - name: Debug GitHub OIDC Claims
         run: |
@@ -33,13 +41,27 @@ jobs:
           workload_identity_provider: 'projects/432222429753/locations/global/workloadIdentityPools/github-assets-action/providers/github-assets'
           service_account: github-action-assets-deploy@gmapsdevdemoqa.iam.gserviceaccount.com   
 
-      #- id: auth
-        #uses: google-github-actions/auth@v1
-        #with:
-          #token_format: 'access_token'
-          #workload_identity_provider: 'projects/432222429753/locations/global/workloadIdentityPools/github-test/providers/github-test-tprovider'
-          #service_account: github-action-assets-deploy@gmapsdevdemoqa.iam.gserviceaccount.com
 
+      - name: Prepare template name and git ref
+        id: vars
+        run: |
+         echo "TEMPLATE_NAME=node-template-${GITHUB_RUN_ID}" >> $GITHUB_OUTPUT
+         echo "GIT_REF=${GITHUB_SHA}" >> $GITHUB_OUTPUT
+      - name: Create new instance template (uses startup.sh from repo)
+        run: |
+          TEMPLATE=${{ steps.vars.outputs.TEMPLATE_NAME }}
+          # Pass git_ref metadata so the startup script checks out the exact commit
+          gcloud compute instance-templates create "$TEMPLATE" \
+            --project="${{ env.PROJECT_ID }}" \
+            --machine-type=e2-standard-2 \
+            --image-family=ubuntu-2204-lts  \
+            --image-project=ubuntu-os-cloud \
+            --boot-disk-size=15GB \
+            --boot-disk-type=pd-standard \
+            --metadata=git_ref=${{ steps.vars.outputs.GIT_REF }} \
+            --metadata-from-file startup-script=./.github/workflows/startup.sh \
+            --tags=http-server
+      
       - name: Test GCP Auth
         run: |
           gcloud auth list
