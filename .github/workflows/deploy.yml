@@ -56,13 +56,10 @@ jobs:
             --machine-type=e2-standard-2 \
             --image-family=ubuntu-2204-lts  \
             --image-project=ubuntu-os-cloud \
-            --boot-disk-size=15GB \
+            --boot-disk-size=20GB \
             --boot-disk-type=pd-standard \
             --metadata=git_ref=${{ steps.vars.outputs.GIT_REF }} \
             --metadata-from-file startup-script=./.github/workflows/startup.sh \
             --tags=http-server
       
-      - name: Test GCP Auth
-        run: |
-          gcloud auth list
-          gcloud projects describe gmapsdevdemoqa --format="value(projectId)"
+      
