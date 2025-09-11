@@ -63,18 +63,21 @@ jobs:
             --metadata-from-file startup-script=./.github/workflows/startup.sh \
             --tags=http-server
       
-      - name: Delete old instance templates (keep last 1)
+      - name: Delete old node-template-* instance templates
         run: |
           OLD_TEMPLATES=$(gcloud compute instance-templates list \
             --project=${{ secrets.PROJECT_ID }} \
+            --filter="name ~ ^node-template-" \
             --format="value(name)" \
             --sort-by=~creationTimestamp | tail -n +2)
 
           if [ -n "$OLD_TEMPLATES" ]; then
            echo "Deleting old templates: $OLD_TEMPLATES"
-           gcloud compute instance-templates delete $OLD_TEMPLATES \
-            --project=${{ secrets.PROJECT_ID }} -q
-          else
-           echo "No old templates to delete."
+           for tmpl in $OLD_TEMPLATES; do
+           gcloud compute instance-templates delete "$tmpl" \
+             --project=${{ secrets.PROJECT_ID }} -q || echo "Template $tmpl not found, skipping."
+           done
+           else
+           echo "No old node-templates to delete."
           fi
-      
+          
