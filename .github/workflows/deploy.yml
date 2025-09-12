@@ -128,20 +128,20 @@ jobs:
 
       - name: Ensure named port (http -> 9005)
         run: |
-         gcloud compute instance-groups set-named-ports "${{ env.MIG_NAME }}" \
-          --named-ports http:9005 \
-          --zone="${{ env.ZONE }}" \
-          --project="${{ env.PROJECT_ID }}"
+          gcloud compute instance-groups set-named-ports "${{ env.MIG_NAME }}" \
+           --named-ports http:9005 \
+           --zone="${{ env.ZONE }}" \
+           --project="${{ env.PROJECT_ID }}"
 		  
       - name: Ensure autoscaling policy (idempotent)
         run: |
-         gcloud compute instance-groups managed set-autoscaling "${{ env.MIG_NAME }}" \
-          --zone="${{ env.ZONE }}" \
-          --cool-down-period=60 \
-          --min-num-replicas=${{ env.MIN_REPLICAS }} \
-          --max-num-replicas=${{ env.MAX_REPLICAS }} \
-          --target-cpu-utilization=${{ env.TARGET_CPU }} \
-          --project="${{ env.PROJECT_ID }}"     
+          gcloud compute instance-groups managed set-autoscaling "${{ env.MIG_NAME }}" \
+           --zone="${{ env.ZONE }}" \
+           --cool-down-period=60 \
+           --min-num-replicas=${{ env.MIN_REPLICAS }} \
+           --max-num-replicas=${{ env.MAX_REPLICAS }} \
+           --target-cpu-utilization=${{ env.TARGET_CPU }} \
+           --project="${{ env.PROJECT_ID }}"     
 
           
           
