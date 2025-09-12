@@ -126,12 +126,12 @@ jobs:
            --max-unavailable=1 \
            --project="$PROJECT"
 
-      - name: Ensure named port (http -> 9005)
-        run: |
-          gcloud compute instance-groups set-named-ports "${{ env.MIG_NAME }}" \
-           --named-ports http:9005 \
-           --zone="${{ env.ZONE }}" \
-           --project="${{ env.PROJECT_ID }}"
+     # - name: Ensure named port (http -> 9005)
+      #  run: |
+       #   gcloud compute instance-groups set-named-ports "${{ env.MIG_NAME }}" \
+        #   --named-ports http:9005 \
+         #  --zone="${{ env.ZONE }}" \
+          # --project="${{ env.PROJECT_ID }}"
 		  
       - name: Ensure autoscaling policy (idempotent)
         run: |
