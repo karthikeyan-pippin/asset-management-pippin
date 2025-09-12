@@ -17,7 +17,7 @@ jobs:
       ZONE: ${{ secrets.ZONE }} # e.g. us-central1-a
       MIG_NAME: ${{ secrets.MIG_NAME }} # e.g. my-node-mig
       MIN_REPLICAS: 1
-      MAX_REPLICAS: 3
+      MAX_REPLICAS: 2
       TARGET_CPU: 0.60
       
     steps:
@@ -110,7 +110,7 @@ jobs:
           if ! gcloud compute instance-groups managed describe "$MIG" --zone="$ZONE" --project="$PROJECT" >/dev/null 2>&1; then
             echo "MIG not found — creating $MIG"
             gcloud compute instance-groups managed create "$MIG" \
-              --base-instance-name=myapp \
+              --base-instance-name=z-github-assets \
               --template="$TEMPLATE" \
               --size=${{ env.MIN_REPLICAS }} \
               --zone="$ZONE" \
