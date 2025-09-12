@@ -15,7 +15,7 @@ jobs:
       PROJECT_ID: ${{ secrets.PROJECT_ID }}
       PROJECT_NUMBER: ${{ secrets.PROJECT_NUMBER }}
       ZONE: ${{ secrets.ZONE }} # e.g. us-central1-a
-      MIG_NAME: ${{ secrets.MIG_NAME }} # e.g. my-node-mig
+      MIG_NAME: ${{ secrets.GCP_MIG_NAME }} # e.g. my-node-mig
       MIN_REPLICAS: 1
       MAX_REPLICAS: 2
       TARGET_CPU: 0.60
