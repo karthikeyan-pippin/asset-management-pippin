@@ -22,7 +22,7 @@ jobs:
       
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4   # 👈 ensures workspace is not empty 
+        uses: actions/checkout@v4   # 👈 ensures workspace is not empty hh
     
       - name: List repo files for debug
         run: |
@@ -121,7 +121,7 @@ jobs:
 
       - name: Update MIG to new template & start rolling update
         run: |
-          MIG="${{ secrets.GCP_MIG_NAME }}"
+          MIG="${{ secrets.MIG_NAME }}"
           ZONE="${{ secrets.ZONE }}"
           TEMPLATE="${{ steps.vars.outputs.TEMPLATE_NAME }}"
           PROJECT="${{ secrets.PROJECT_ID }}"
