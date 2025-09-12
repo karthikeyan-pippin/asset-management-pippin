@@ -82,6 +82,6 @@ jobs:
           fi
 
           # Verify template was created
-        echo "Verifying template creation..."
-        gcloud compute instance-templates describe "$TEMPLATE" --project="${{ env.PROJECT_ID }}"
+          echo "Verifying template creation..."
+          gcloud compute instance-templates describe "$TEMPLATE" --project="${{ env.PROJECT_ID }}"
           
