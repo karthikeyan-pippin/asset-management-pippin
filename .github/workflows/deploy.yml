@@ -91,6 +91,16 @@ jobs:
            echo "No old node-templates to delete."
           fi
 
+      - name: Debug environment vars
+        run: |
+          echo "PROJECT_ID=${{ env.PROJECT_ID }}"
+          echo "PROJECT_NUMBER=${{ env.PROJECT_NUMBER }}"
+          echo "ZONE=${{ env.ZONE }}"
+          echo "MIG_NAME=${{ env.MIG_NAME }}"
+          echo "MIN_REPLICAS=${{ env.MIN_REPLICAS }}"
+          echo "MAX_REPLICAS=${{ env.MAX_REPLICAS }}"
+          echo "TARGET_CPU=${{ env.TARGET_CPU }}"    
+
       - name: Create MIG if not exists
         run: |
           MIG="${{ env.MIG_NAME }}"
