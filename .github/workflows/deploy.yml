@@ -92,39 +92,39 @@ jobs:
 
       - name: Create MIG if not exists
         run: |
-         MIG="${{ env.MIG_NAME }}"
-         ZONE="${{ env.ZONE }}"
-         TEMPLATE="${{ steps.vars.outputs.TEMPLATE_NAME }}"
-         PROJECT="${{ env.PROJECT_ID }}"
-         if ! gcloud compute instance-groups managed describe "$MIG" --zone="$ZONE" --project="$PROJECT" >/dev/null 2>&1; then
-          echo "MIG not found — creating $MIG"
-          gcloud compute instance-groups managed create "$MIG" \
-            --base-instance-name=myapp \
-            --template="$TEMPLATE" \
-            --size=${{ env.MIN_REPLICAS }} \
-            --zone="$ZONE" \
-            --project="$PROJECT"
-         else
-          echo "MIG exists"
-         fi    
+          MIG="${{ env.MIG_NAME }}"
+          ZONE="${{ env.ZONE }}"
+          TEMPLATE="${{ steps.vars.outputs.TEMPLATE_NAME }}"
+          PROJECT="${{ env.PROJECT_ID }}"
+          if ! gcloud compute instance-groups managed describe "$MIG" --zone="$ZONE" --project="$PROJECT" >/dev/null 2>&1; then
+           echo "MIG not found — creating $MIG"
+           gcloud compute instance-groups managed create "$MIG" \
+             --base-instance-name=myapp \
+             --template="$TEMPLATE" \
+             --size=${{ env.MIN_REPLICAS }} \
+             --zone="$ZONE" \
+             --project="$PROJECT"
+          else
+           echo "MIG exists"
+          fi    
 
       - name: Update MIG to new template & start rolling update
         run: |
-         MIG="${{ secrets.GCP_MIG_NAME }}"
-         ZONE="${{ secrets.ZONE }}"
-         TEMPLATE="${{ steps.vars.outputs.TEMPLATE_NAME }}"
-         PROJECT="${{ secrets.PROJECT_ID }}"
-         # Point MIG to the new template
-          gcloud compute instance-groups managed set-instance-template "$MIG" \
-           --template="$TEMPLATE" \
-           --zone="$ZONE" \
-           --project="$PROJECT"
-         # Start rolling update (tune --max-unavailable as needed)
-          gcloud compute instance-groups managed rolling-action start-update "$MIG" \
-           --version=template="$TEMPLATE" \
-           --zone="$ZONE" \
-           --max-unavailable=1 \
-           --project="$PROJECT"
+          MIG="${{ secrets.GCP_MIG_NAME }}"
+          ZONE="${{ secrets.ZONE }}"
+          TEMPLATE="${{ steps.vars.outputs.TEMPLATE_NAME }}"
+          PROJECT="${{ secrets.PROJECT_ID }}"
+          # Point MIG to the new template
+           gcloud compute instance-groups managed set-instance-template "$MIG" \
+            --template="$TEMPLATE" \
+            --zone="$ZONE" \
+            --project="$PROJECT"
+          # Start rolling update (tune --max-unavailable as needed)
+           gcloud compute instance-groups managed rolling-action start-update "$MIG" \
+            --version=template="$TEMPLATE" \
+            --zone="$ZONE" \
+            --max-unavailable=1 \
+            --project="$PROJECT"
 
       - name: Ensure named port (http -> 9005)
         run: |
