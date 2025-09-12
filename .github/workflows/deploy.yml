@@ -97,15 +97,15 @@ jobs:
           TEMPLATE="${{ steps.vars.outputs.TEMPLATE_NAME }}"
           PROJECT="${{ env.PROJECT_ID }}"
           if ! gcloud compute instance-groups managed describe "$MIG" --zone="$ZONE" --project="$PROJECT" >/dev/null 2>&1; then
-           echo "MIG not found — creating $MIG"
-           gcloud compute instance-groups managed create "$MIG" \
-             --base-instance-name=myapp \
-             --template="$TEMPLATE" \
-             --size=${{ env.MIN_REPLICAS }} \
-             --zone="$ZONE" \
-             --project="$PROJECT"
+            echo "MIG not found — creating $MIG"
+            gcloud compute instance-groups managed create "$MIG" \
+              --base-instance-name=myapp \
+              --template="$TEMPLATE" \
+              --size=${{ env.MIN_REPLICAS }} \
+              --zone="$ZONE" \
+              --project="$PROJECT"
           else
-           echo "MIG exists"
+            echo "MIG exists"
           fi    
 
       - name: Update MIG to new template & start rolling update
@@ -115,12 +115,12 @@ jobs:
           TEMPLATE="${{ steps.vars.outputs.TEMPLATE_NAME }}"
           PROJECT="${{ secrets.PROJECT_ID }}"
           # Point MIG to the new template
-           gcloud compute instance-groups managed set-instance-template "$MIG" \
+          gcloud compute instance-groups managed set-instance-template "$MIG" \
             --template="$TEMPLATE" \
             --zone="$ZONE" \
             --project="$PROJECT"
           # Start rolling update (tune --max-unavailable as needed)
-           gcloud compute instance-groups managed rolling-action start-update "$MIG" \
+          gcloud compute instance-groups managed rolling-action start-update "$MIG" \
             --version=template="$TEMPLATE" \
             --zone="$ZONE" \
             --max-unavailable=1 \
@@ -129,19 +129,20 @@ jobs:
       - name: Ensure named port (http -> 9005)
         run: |
           gcloud compute instance-groups set-named-ports "${{ env.MIG_NAME }}" \
-           --named-ports http:9005 \
-           --zone="${{ env.ZONE }}" \
-           --project="${{ env.PROJECT_ID }}"
-		  
+            --named-ports http:9005 \
+            --zone="${{ env.ZONE }}" \
+            --project="${{ env.PROJECT_ID }}"
+
       - name: Ensure autoscaling policy (idempotent)
         run: |
           gcloud compute instance-groups managed set-autoscaling "${{ env.MIG_NAME }}" \
-           --zone="${{ env.ZONE }}" \
-           --cool-down-period=60 \
-           --min-num-replicas=${{ env.MIN_REPLICAS }} \
-           --max-num-replicas=${{ env.MAX_REPLICAS }} \
-           --target-cpu-utilization=${{ env.TARGET_CPU }} \
-           --project="${{ env.PROJECT_ID }}"     
+            --zone="${{ env.ZONE }}" \
+            --cool-down-period=60 \
+            --min-num-replicas=${{ env.MIN_REPLICAS }} \
+            --max-num-replicas=${{ env.MAX_REPLICAS }} \
+            --target-cpu-utilization=${{ env.TARGET_CPU }} \
+            --project="${{ env.PROJECT_ID }}"
+   
 
           
           
