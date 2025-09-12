@@ -63,6 +63,11 @@ jobs:
             --metadata-from-file startup-script=./.github/workflows/startup.sh \
             --tags=http-server
 
+      - name: Verify template exists before delete
+        run: |
+          TEMPLATE_NAME="node-template-${GITHUB_RUN_ID}"
+          gcloud compute instance-templates describe "$TEMPLATE_NAME" --project="$PROJECT_ID" || echo "Template not found"
+      
       
       - name: Delete old node-template-* instance templates
         run: |
@@ -82,7 +87,5 @@ jobs:
            echo "No old node-templates to delete."
           fi
 
-          # Verify template was created
-          echo "Verifying template creation..."
-          gcloud compute instance-templates describe "$TEMPLATE" --project="${{ env.PROJECT_ID }}"
+          
           
