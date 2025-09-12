@@ -71,26 +71,7 @@ jobs:
         run: |
           TEMPLATE_NAME="node-template-${GITHUB_RUN_ID}"
           gcloud compute instance-templates describe "$TEMPLATE_NAME" --project="$PROJECT_ID" || echo "Template not found"
-      
-      
-      - name: Delete old node-template-* instance templates
-        run: |
-          OLD_TEMPLATES=$(gcloud compute instance-templates list \
-            --project=${{ secrets.PROJECT_ID }} \
-            --filter="name ~ ^node-template-" \
-            --format="value(name)" \
-            --sort-by=~creationTimestamp | tail -n +2)
-
-          if [ -n "$OLD_TEMPLATES" ]; then
-           echo "Deleting old templates: $OLD_TEMPLATES"
-           for tmpl in $OLD_TEMPLATES; do
-           gcloud compute instance-templates delete "$tmpl" \
-             --project=${{ secrets.PROJECT_ID }} -q || echo "Template $tmpl not found, skipping."
-           done
-           else
-           echo "No old node-templates to delete."
-          fi
-
+ 
       - name: Debug environment vars
         run: |
           echo "PROJECT_ID=${{ env.PROJECT_ID }}"
@@ -127,15 +108,43 @@ jobs:
           PROJECT="${{ secrets.PROJECT_ID }}"
           # Point MIG to the new template
           gcloud compute instance-groups managed set-instance-template "$MIG" \
-            --template="$TEMPLATE" \
+            --template="$NEW_TEMPLATE" \
             --zone="$ZONE" \
             --project="$PROJECT"
           # Start rolling update (tune --max-unavailable as needed)
           gcloud compute instance-groups managed rolling-action start-update "$MIG" \
-            --version=template="$TEMPLATE" \
+            --version=template="$NEW_TEMPLATE" \
             --zone="$ZONE" \
             --max-unavailable=1 \
             --project="$PROJECT"
+
+      - name: Wait for MIG update to finish
+        run: |
+          MIG="${{ env.MIG_NAME }}"
+          ZONE="${{ env.ZONE }}"
+          PROJECT="${{ env.PROJECT_ID }}"
+          gcloud compute instance-groups managed wait-until "$MIG" \
+            --version-target-reached \
+            --zone="$ZONE" \
+            --project="$PROJECT"
+
+      - name: Delete old node-template-* instance templates
+        run: |
+          OLD_TEMPLATES=$(gcloud compute instance-templates list \
+            --project=${{ env.PROJECT_ID }} \
+            --filter="name ~ ^node-template-" \
+            --format="value(name)" \
+            --sort-by=~creationTimestamp | tail -n +2)
+
+          if [ -n "$OLD_TEMPLATES" ]; then
+            echo "Deleting old templates: $OLD_TEMPLATES"
+            for tmpl in $OLD_TEMPLATES; do
+              gcloud compute instance-templates delete "$tmpl" \
+                --project=${{ env.PROJECT_ID }} -q || echo "Template $tmpl still in use, skipping."
+            done
+          else
+            echo "No old node-templates to delete."
+          fi       
 
       - name: Ensure named port (http -> 9005)
         run: |
