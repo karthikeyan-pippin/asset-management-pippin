@@ -108,12 +108,12 @@ jobs:
           PROJECT="${{ secrets.PROJECT_ID }}"
           # Point MIG to the new template
           gcloud compute instance-groups managed set-instance-template "$MIG" \
-            --template="$NEW_TEMPLATE" \
+            --template="$TEMPLATE" \
             --zone="$ZONE" \
             --project="$PROJECT"
           # Start rolling update (tune --max-unavailable as needed)
           gcloud compute instance-groups managed rolling-action start-update "$MIG" \
-            --version=template="$NEW_TEMPLATE" \
+            --version=template="$TEMPLATE" \
             --zone="$ZONE" \
             --max-unavailable=1 \
             --project="$PROJECT"
