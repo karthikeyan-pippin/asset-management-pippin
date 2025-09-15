@@ -134,7 +134,7 @@ jobs:
             --project=${{ env.PROJECT_ID }} \
             --filter="name ~ ^node-template-" \
             --format="value(name)" \
-            --sort-by=~creationTimestamp | tail -n +2)
+            --sort-by=~creationTimestamp | tail -n +1)
 
           if [ -n "$OLD_TEMPLATES" ]; then
             echo "Deleting old templates: $OLD_TEMPLATES"
