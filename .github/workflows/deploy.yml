@@ -163,29 +163,7 @@ jobs:
             --target-cpu-utilization=${{ env.TARGET_CPU }} \
             --project="${{ env.PROJECT_ID }}"
 
-      - name: Mark directory as safe for Git
-        run: git config --global --add safe.directory /var/www
-
-      - name: Deploy code to VM
-        run: |
-          echo "📁 Ensuring app directory exists"
-          sudo mkdir -p /var/www
-
-          echo "📁 Changing to app directory"
-          cd /var/www || exit 1
-
-          echo "📥 Pulling latest code"
-          git pull origin main
-
-          echo "📦 Installing dependencies"
-          npm install
-
-      - name: 🚀 Start or Restart PM2 App
-        run: |
-          echo "🚀 Starting or restarting app"
-          sudo pm2 delete titles-server || true
-          sudo pm2 start app.js --name "titles-server" --update-env
-          sudo pm2 save      
+      
    
 
           

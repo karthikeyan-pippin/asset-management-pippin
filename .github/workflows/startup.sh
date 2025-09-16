@@ -1,46 +1,37 @@
 #!/bin/bash
 
-cd /var
-sudo mkdir www
+# Ensure app directory exists
+sudo mkdir -p /var/www
 sudo chmod -R 777 /var/www
+cd /var/www
 
-sudo apt update
+# Install system updates
+sudo apt update -y
 sudo apt upgrade -y
+
+# Install Node.js 18
 curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
 sudo apt install -y nodejs
 
-sleep 15
-
+# Install PM2
 sudo npm install -g pm2
-pm2 -v    # Verify PM2 is installed
 
-sleep 15
-
-sudo apt update
+# Install Git
 sudo apt install -y git
 
-sleep 15
+# Clone or update repo
+if [ ! -d ".git" ]; then
+  echo "📥 Cloning repo"
+  git clone https://github.com/karthikeyan-pippin/asset-management-pippin.git . 
+else
+  echo "📥 Updating repo"
+  git fetch origin main && git reset --hard origin/main
+fi
 
-sudo apt update
-sudo apt install -y net-tools
+# Install app dependencies
+npm install
 
-sleep 15
-
-sudo apt update -y
-sudo apt upgrade -y
-sudo apt install -y wget apt-transport-https software-properties-common
-wget -q -O- http://www.webmin.com/jcameron-key.asc | sudo apt-key add -
-sudo add-apt-repository "deb http://download.webmin.com/download/repository sarge contrib"
-sudo apt update
-sudo apt install -y webmin
-
-sleep 15
-
-sudo apt update -y
-sudo apt install -y curl build-essential
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-echo 'export NVM_DIR="$HOME/.nvm"' >> ~/.bashrc
-echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> ~/.bashrc
-source ~/.bashrc
+# Start app with PM2
+pm2 delete titles-server || true
+pm2 start app.js --name "titles-server" --update-env
+pm2 save
