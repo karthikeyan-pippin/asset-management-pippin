@@ -1,4 +1,9 @@
 #!/bin/bash
+
+cd /var
+sudo mkdir www
+sudo chmod -R 777 /www
+
 sudo apt update
 sudo apt upgrade -y
 curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
@@ -39,8 +44,3 @@ export NVM_DIR="$HOME/.nvm"
 echo 'export NVM_DIR="$HOME/.nvm"' >> ~/.bashrc
 echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> ~/.bashrc
 source ~/.bashrc
-
-sleep 15
-
-cd /var
-mkdir www
