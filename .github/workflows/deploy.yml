@@ -23,7 +23,17 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4   # 👈 ensures workspace is not empty  yt
-    
+      
+      - name: Notify Slack – Start
+        run: |
+          payload="{
+            \"text\": \"🟡 *Starting Deployment...*\\n\
+          *Repo:* $GITHUB_REPOSITORY\\n\
+          *Branch:* ${GITHUB_REF#refs/heads/}\"}"
+          curl -X POST -H 'Content-type: application/json' \
+            --data "$payload" \
+            "${{ secrets.SLACK_URL }}"
+
       - name: List repo files for debug
         run: |
           ls -l ./.github/workflows/startup.sh
@@ -162,7 +172,18 @@ jobs:
             --max-num-replicas=${{ env.MAX_REPLICAS }} \
             --target-cpu-utilization=${{ env.TARGET_CPU }} \
             --project="${{ env.PROJECT_ID }}"
-
+      
+      - name: Notify Slack – Complete
+        if: always()
+        run: |
+          payload="{
+            \"text\": \"✅ *Deployment Finished*\\n\
+          Repo: $GITHUB_REPOSITORY\\n\
+          Branch: ${GITHUB_REF#refs/heads/}\\n\
+          Status: ${{ job.status }}\"}"
+          curl -X POST -H 'Content-type: application/json' \
+            --data "$payload" \
+            "${{ secrets.SLACK_URL }}"
       
    
 
