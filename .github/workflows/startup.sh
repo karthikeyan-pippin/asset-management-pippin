@@ -2,7 +2,7 @@
 
 cd /var
 sudo mkdir www
-sudo chmod -R 777 /www
+sudo chmod -R 777 /var/www
 
 sudo apt update
 sudo apt upgrade -y
