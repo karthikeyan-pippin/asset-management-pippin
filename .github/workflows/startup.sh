@@ -1,10 +1,5 @@
 #!/bin/bash
 
-# Ensure app directory exists
-sudo mkdir -p /var/www
-sudo chmod -R 777 /var/www
-cd /var/www
-
 # Install system updates
 sudo apt update -y
 sudo apt upgrade -y
@@ -18,6 +13,11 @@ sudo npm install -g pm2
 
 # Install Git
 sudo apt install -y git
+
+# Ensure app directory exists
+sudo mkdir -p /var/www
+sudo chmod -R 777 /var/www
+cd /var/www
 
 # Clone or update repo
 if [ ! -d ".git" ]; then
