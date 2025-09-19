@@ -18,7 +18,7 @@ jobs:
       MIG_NAME: ${{ secrets.MIG_NAME }} # e.g. my-node-mig
       MIN_REPLICAS: 1
       MAX_REPLICAS: 2
-      TARGET_CPU: 0.60
+      TARGET_CPU: 0.50
       
     steps:
       - name: Checkout repo
