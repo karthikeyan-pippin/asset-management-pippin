@@ -22,7 +22,7 @@ jobs:
       
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4   # 👈 ensures workspace is not empty  yt
+        uses: actions/checkout@v4   # 👈 ensures workspace is not empty 
       
       - name: Notify Slack – Start
         run: |
